@@ -1,0 +1,202 @@
+\documentclass[11pt, a4paper]{article}
+\usepackage{Sweave}
+\usepackage{graphicx, verbatim}
+\usepackage[utf8]{inputenc}
+\usepackage{cite}
+\usepackage{authblk}
+
+\begin{document}
+\SweaveOpts{concordance=TRUE}
+\title{Univariate and Multivariate Outlier Analysis for Genomic Data: The \textbf{roa} package}
+\author[1,2]{Kylie Ainslie}
+\author[1,2]{Jeanne Kowalski} 
+  \affil[1]{Department of Biostatistics and Bioinformatics, Rollins School of Public Health, Emory University, Atlanta, GA}
+  \affil[2]{Biostatistics and Bioinformatics Shared Resource, Winship Cancer Institute, Emory University, Atlanta, GA}
+
+
+%\SweaveOpts{concordance=TRUE}
+\maketitle
+
+
+\section{Introduction}
+The cancer genome is exceedingly complex due to the high amount of genetic instability. Differential gene expression methodologies have long been employed to identify the unstable genes that lead to tumor initiation and progression. In some cancers, such as multiple myeloma (MM), genetic instability is seen mainly as translocations that result in abnormal gene expression. However, many of these instability events occur in only a subset of patients, making detection via traditional differential gene expression methods difficult. A classic example of such a disruption is the FGFR3-IGH translocation in MM, which occurs in only 15-20\% of patients \cite{bergsagel, segges}. Patients with the FGFR3-IGH, t(4;14) translocation have abnormally high expression of FGFR3 \cite{bergsagel, chesi}, and have been associated with poorer prognosis \cite{segges}. Thus, instability events in a fraction of patients are of interest, but are difficult to detect. 
+
+Several outlier detection methods have been developed to detect gene expression outliers, such as FGFR3. These outlier methods have succeeded in identifying unstable genes. Tomlins et al. identified the TMPRSS2-ETS fusion in prostate cancer using the Cancer Profile Outlier Analysis (COPA) \cite{copa}. Other previously developed outlier methods include the Outlier Sum Statistic (OSS) \cite{oss} and Gene Tissue Index (GTI) \cite{gti}. While these three statistics perform similarly, they differ drastically in the genes they rank the highest \cite{gti}. This package provides two integrated outlier analysis approaches. The first, a univariate approach, calculates each outlier statistic separately in addition to the variance and then applies a change point model \cite{cpm} to identify outlier genes based on each statistic. The separate gene lists can then be further filtered by instersection. The second approach, a multivariate approach, combines the three outlier statistics into a score statistic and then identifies outlier genes using a change point model \cite{cpm}.
+
+The purpose of this paper is to describe the \textbf{roa} package which provides both univariate and multivariate approaches to outlier identification. Many previosly developed outlier methods and packages are designed for gene expression microarray data \cite{gti,oss,copa,multi,zodet}. Unlike existing R packages, the \textbf{roa} package can be used with numerous types of biological data in addition to gene expression microarray data, such as RNA-Seq, methylation, and copy number data. The \textbf{roa} package also allows the use of a multivariate approach to identify outliers.
+
+Section 2 of this paper provides some background into the methods used within this package. Section 2.1 describes the previously developed outlier methods used in this package. Section 3 provides an overview of the univariate approach along with examples of usage. Section 4 provides an overview of the multivariate approach and examples of usage. In Section 5, additional capabilities of \textbf{roa} are discussed.
+
+\section{Background}
+The previously developed outlier statistics (COPA, OSS, and GTI) were designed to find outliers in a two group context (disease samples relative to normal samples) \cite{gti,oss,copa}. In practice it is not always possible to have both disease and normal samples. This package features these three statistics in both their two group context (uv.outlier2 and mv.outlier2) and in their single group (disease only samples) context (uv.outlier and mv.outlier).
+
+\subsection{Existing Methods}
+The COPA statistic and OSS were developed based on the t-statistic replacing the mean and standard deviation with the median and median absolute deviation, respectively \cite{gti,oss,copa}. Borrowing notation from Mpindi et al. 2011, the COPA statistic is defined as
+\begin{equation}
+COPA_j=q_r(\tilde{x}_{ij})=\frac{q_r(x_{ij}:i \in C_2)-med_j}{mad_j},
+\end{equation}
+where $ q_r(x_{ij}:i \in C_2) $ is the rth percentile (in this paper we use r=85) of disease samples’ standardized gene expression, $x_{ij}$ is the gene expression of sample i for gene j, $med_j$ is the median expression value among all samples for gene j, and $mad_j$ is the median absolute deviation of all samples for gene j (6).  
+	The OS statistic is defined as
+\begin{equation}
+OSS_j=\frac{\sum_{i\in O_j}(x_{ij}-med_j)}{mad_j},
+\end{equation},
+where $O_j$ is the set of outlier samples \\
+$(O_j={i: x_{ij} > q_{75}(x_{mj}:m=1,…n)+IQR(x_{mj}:m=1,\dots n)})$, $x_{ij}$ is the gene expression of sample i for gene j, medj is the median expression value among all samples for gene j, and $mad_j$ is the median absolute deviation of all samples for gene j \cite{gti,oss}. 
+The GTI was adapted from economics to weight an outlier’s outlying-ness. The GTI statistic is defined as
+\begin{equation}
+GTI_j=\frac{T_j}{n_j}\times \frac{(A_j-B_j)}{A_j},
+\end{equation}
+where $T_j$ is the number of samples with expression values about the cut-off for gene j, $n_j$ is the total number of samples for gene j, $A_j$ is the average expression of samples above the cut-off for gene j, and $B_j$ is the cut-off value for gene j \cite{gti}. We used the standard cut-off $q_{75}$ + IQR.
+
+\section{Univariate Outlier Analysis}
+\subsection{Data}
+For the purposes of this vignette, the following code will be used to simulate microarray gene expression data. For use with \textbf{roa} data should be formatted with samples down the rows and genomic IDs across the columns. Row names should be the sample IDs and column names should be the genomic IDs. Some genomic IDs, such as microarray gene expression probes, begin with numbers. R does not allow column names to start with a number, so an "X" is added to the ID. To make sure IDs can be appropriately matched back to any annotation files, all functions in \textbf{roa} have an logical option, num.id, to indicate whether the IDs being with a number. 
+<<echo=FALSE>>=
+options(width=60)
+@
+<<>>=
+#generate non-outlier data
+ set.seed(0)
+ sim.data<-matrix(c(rnorm(1000*200,0,1)),nrow=200)
+  
+#generate outlier gene expression
+  y<-matrix(rnorm(200*10,0,1),nrow=200)
+  m<-max(sim.data,y)
+  c<-c(rep(m,20),rep(0,180))
+  test.genes<-y+c
+  data<-cbind(test.genes,sim.data)
+  
+#add column names
+  pre<-"test"
+  suf<-seq(1:10)
+  prefix<-"gene"
+  suffix<-seq(1:1000)
+  colnames(data)<-c(paste(pre,suf,sep=""),paste(prefix,suffix,sep=""))
+  rownames(data)<-c(paste("sample",seq(1:200),sep=""))
+
+#create annotation file
+  p<-"gene.symbol"
+  s<-seq(1:1010)
+  annot<-data.frame(ID=colnames(data),Gene=paste(p,s,sep=""))
+@
+\subsection{Univariate Approach}
+The univariate approach incorporates all three previously mentioned outlier methods in addition to a simple variance estimate to identify a robust list of outliers. Each outlier statistic is calculated for each gene then, using either a change point model (using the \textbf{cpm} R package \cite{cpm}) or a user-defined cut-off, outliers are determined for each statistic. To apply the univariate approach to a dataset use the uv.outlier (for data containing only disease samples) or uv.outlier2 function (for data containing both disease and normal samples). Detailed usage of the single group functionality of \textbf{roa} follows. For detailed examples of how to use the two group functions available in \textbf{roa} see Section 6.
+<<results=hide>>=
+library(roa)
+uv.outlier(data,num.id=F)
+@
+If an annotation file is not specified four method-specific lists of outliers are outputted. If an annotation file is specified, a single list of outliers is outputted with a column that indicates the method that selected each outlier. The lists of outlier genes from each of the statistics can be further filtered by intersection to identify genes in common among all four or three of the four method-specific lists.
+<<>>=
+uv.outlier(data,annotation=annot,annID=1,annName=2,common.genes=T,
+           num.id=F)
+@
+The default method of identifying a threshold by which outliers are identified is using the Mann-Whitney statistic in a nonparametric change point model framework. The \textbf{cpm} package is used to identify the change point and can be implemented using the Student-t, Bartlett, and GLR statistics for sequences known to be Gaussian; Fisher's Exact Test statistic for Bernoulli sequences; Exponential statistic for Exponential sequences, and Mann-Whitney, Mood, Lepage, Kolmogorov-Smirnov, and Cramer-von-Mises statistics for sequences in which the distribution is not known \cite{cpm}. For more information on \textbf{cpm}, see the \textbf{cpm} manual available at <http://www.gordonjross.co.uk/cpm.pdf>.
+<<results=hide>>=
+uv.outlier(data,cpmtype="Mann-Whitney",num.id=F)
+@
+In addition to the identification of an outlier threshold using a change point model framework, a user-defined cut-off can be specified.
+<<results=hide>>=
+uv.outlier(data,p=0.95,num.id=F)
+@
+COPA, OSS, and GTI were developed to identify over expressed gene expression outliers. However, all of these statistics have been adapted to identify low-valued outliers, such as under expressed or hypo methylated genes. Specifying under=T in any of the functions will results in the identification of low-valued outliers.   
+<<results=hide>>=
+uv.outlier(data,cut=0.15,under=T,num.id=F)
+@
+A results file and threshold figure generated from each list of outliers can be outputted if a path is specified.
+\subsubsection{Figures}
+In addition to the lists of outliers selected by each outlier statistic, uv.outlier produces a threshold plot for each statistic. If no path indicating where output should be saved is identified, threshold plots are outputted directly into R as one figure. 
+<<results=hide,fig=TRUE>>=
+uv.outlier(data,num.id=F)
+@
+If a path is identified, a jpeg file of the threshold plot and a plot of the D statistics from the change point model \cite{cpm} is output for each outlier statistic.
+
+\subsection{Individual Outlier Statistics}
+In addition, if the user would rather identify outliers using only one method instead of all four, each outlier detection method has both a single group and two group function. For example, if an investigator's favorite outlier detection method was the OSS, outliers could be identified using just the OSS. Each individual outlier statistic function can produce a threshold plot showing the threshold by which outlier were identified.
+<<fig=T>>=
+oss(data,num.id=F)
+@
+
+\section{Multivariate Outlier Analysis}
+The multivariate approach integrates the COPA, OSS, and GTI statistics into a score statistic to identify outliers. First, each outlier statistic is calculated for each gene. Second, a score statistic is calculated from the three statistics using an identity matrix as the variance-covariance matrix. Let $\mathbf{\theta}_j=(c_j,o_j,g_j)^T$ be the vector of outlier statistics calculated for gene $j$, $j=1,2,\dots,n$. Let $\mathbf{V}=\mathbf{I}_3$ be the variance-covariance matrix. The score statistic for gene $j$ is thus,
+\begin{equation}
+S_j=\mathbf{\theta}_j^T \mathbf{V} \mathbf{\theta}_j.
+\end{equation}
+Finally, outliers are determined by applying either a change point model \cite{cpm} or a user-defined cut-off to the vector of score statistics, $\mathbf{S}=(S_1,S_2,\dots,S_n)^T$. The threshold by which outliers are identified can be visualized by the outputted threshold plot. Similarly to the univariate approach, the multivariate approach can be used with single group data (mv.outlier) or two group data (mv.outlier2).
+<<fig=TRUE>>=
+mv.outlier(data,num.id=F)
+@
+As with the univariate approach, the default method of identifying an outlier threshold is using a change point model framework with the Mann-Whitney statistic. As mentioned in Section 3.1, other parametric and nonparametric statistics can be implemented with the change point model framework \cite{cpm}. A user-defined cut-off can also be specified for outlier identification.
+<<results=hide>>=
+mv.outlier(data,p=0.95,num.id=F)
+@
+\section{Additional Capabilities}
+\subsection{Outlying Samples}
+Often when an outlier is identified it is of interest to determine which samples had outlying values,i.e., which samples caused that outlier to be an outlier. If those samples have a common trait, it may be indicative of a subgroup within the samples. The function outlying.samples provides the ability to determine which samples have outlying values. When using outlying.samples, a list with two components is returned. The first component is a matrix with each row representing a sample and each column representing an outlier. A 1 in element [i,j] indicates that sample i has an outlying value for outlier j. The second component is a two column matrix with the sample IDs in column one and an indicator of whether each sample has an outlying value in at least one outlier.
+
+<<>>=
+out<-mv.outlier(data,num.id=F)
+os<-outlying.samples(data,outliers=out[,1])
+os$by.outlier[1:25,1:8]
+os$sample.ind[1:25,]
+@
+Note: the full output is not shown above. 
+\section{Appendix}
+\subsection{Examples using two group functions}
+\subsubsection{Data}
+The two group functions which allow for the analysis of data that contains normal and disease samples result in the same output as their single group counterparts. The main difference when using the two group functions is the need to specify three different datasets instead of one. The subset of disease samples, the subset of normal samples, and the entire dataset should be specified as data\_ d, data\_ n, and data\_ all, respectively.
+
+<<>>=
+#generate normal data
+ norm.data<-matrix(c(rnorm(1010*100,0,1)),nrow=100)
+  
+#generate disease data with 10 outlier genes
+  mydata<-matrix(rnorm(1000*100,0,1),nrow=100)
+  y<-matrix(rnorm(100*10,0,1),nrow=100)
+  m<-max(mydata,y)
+  c<-c(rep(m,20),rep(0,80))
+  test.genes<-y+c
+  dis.data<-cbind(test.genes,mydata)
+
+#add column names
+  pre<-"test"
+  suf<-seq(1:10)
+  prefix<-"gene"
+  suffix<-seq(1:1000)
+  colnames(dis.data)<-c(paste(pre,suf,sep=""),
+                        paste(prefix,suffix,sep=""))
+  rownames(dis.data)<-c(paste("dis.sample",seq(1:100),sep=""))
+
+  colnames(norm.data)<-c(paste(pre,suf,sep=""),
+                         paste(prefix,suffix,sep=""))
+  rownames(norm.data)<-c(paste("norm.sample",seq(1:100),sep=""))
+#complete data
+  all.data<-rbind(dis.data,norm.data)
+
+#create annotation file
+  p<-"gene.symbol"
+  s<-seq(1:1010)
+  annot<-data.frame(ID=colnames(dis.data),Gene=paste(p,s,sep=""))
+@
+\subsubsection{Examples}
+Below is an example of using the two group multivariate function.
+<<results=hide>>=
+example<-mv.outlier2(dis.data,norm.data,all.data,annotation=annot,
+              annID=1,annName=2,num.id=FALSE)
+@
+Suppose we want to identify the outlying samples. The two-group outlier statistics are calculated to identify outliers in the disease group relative to the normal group, so we only need to specify the disease dataset to find outlying samples. Note, the output shown below has been shortened and only shows the first 25 samples.
+<<>>=
+os2<-outlying.samples(dis.data,outliers=example[,1])
+os2$by.outlier[1:25,1:8]
+os2$sample.ind[1:25,]
+@
+The two group versions of the univariate outlier analysis and the individual outlier statistic functions have the same arguments as the two group multivariate function.
+<<results=hide>>=
+uv.outlier2(dis.data,norm.data,all.data,num.id=FALSE)
+@
+For any function, single group or two group, a user-defined threshold can be identified.
+<<results=hide>>=
+copa2(dis.data,norm.data,all.data,num.id=FALSE,p=0.85)
+@
+\bibliography{roa}{}
+\bibliographystyle{plain}
+\end{document}

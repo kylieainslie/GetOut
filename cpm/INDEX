@@ -1,0 +1,15 @@
+ForexData               Foreign Exchange Data
+changeDetected          Tests Whether a CPM S4 Object Has Encountered a
+                        Change Point
+cpm-package             The Change Point Model Package
+cpmReset                Resets a CPM S4 Object
+detectChangePoint       Detect a Single Change Point in a Sequence
+detectChangePointBatch
+                        Detect a Single Change Point in a Sequence
+getBatchThreshold       Returns the Threshold Associated with a Type I
+                        Error Probability .
+getStatistics           Returns the Test Statistics Associated With A
+                        CPM S4 Object
+makeChangePointModel    Creates a CPM S4 Object
+processObservation      Process an Observation Using a CPM S4 Object.
+processStream           Detects Multiple Change Points in a Sequence

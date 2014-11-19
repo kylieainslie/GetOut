@@ -1,0 +1,11 @@
+cpm-package	cpmPackage
+changeDetected	changeDetected
+cpmReset	cpmReset
+detectChangePoint	detectChangePoint
+detectChangePointBatch	detectChangePointBatch
+ForexData	ForexData
+getBatchThreshold	getBatchThreshold
+getStatistics	getStatistics
+makeChangePointModel	makeChangePointModel
+processObservation	processObservation
+processStream	processStream
