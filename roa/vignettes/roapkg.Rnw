@@ -140,6 +140,8 @@ os$by.outlier[1:25,1:8]
 os$sample.ind[1:25,]
 @
 Note: the full output is not shown above. 
+\section{Acknowledgments}
+This work was supported by a Leukemia and Lymphoma Society Translational Research Program Award; Georgia Research Alliance Scientist Award, and a Glenn Family Breast Center award, Winship Cancer Institute of Emory University.
 \section{Appendix}
 \subsection{Examples using two group functions}
 \subsubsection{Data}
