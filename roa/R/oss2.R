@@ -1,5 +1,5 @@
-oss2<-function(data_d,data_n,data_all, annotation=NULL, annID,annName,save.path=NULL,diff=T, cpmtype="Mann-Whitney",
-               num.id=T,under=F,p=NULL){
+oss2<-function(data_d,data_n,data_all, annotation=NULL, annID,annName,save.path=NULL,diff=TRUE, cpmtype="Mann-Whitney",
+               num.id=TRUE,under=FALSE,p=NULL){
   
   #check for missing arguments
   if(missing(data_d) | missing(data_n) | missing(data_all)){
@@ -60,8 +60,8 @@ oss<-function(data_d,data_n,data_all,Under=under){
   x2<-sweep(data_all,2,med,FUN="-")
   x3<-sweep(x2,2,mad2,FUN="/")
   #determine cutoff
-  if(Under==F){cutoff<-function(data) quantile(data,0.75,na.rm=T)-quantile(data,0.25,na.rm=T)+quantile(data,0.75,na.rm=T)}
-  if(Under==T){cutoff<-function(data) quantile(data,0.25,na.rm=T)-(quantile(data,0.75,na.rm=T)-quantile(data,0.25,na.rm=T))}
+  if(Under==FALSE){cutoff<-function(data) quantile(data,0.75,na.rm=TRUE)-quantile(data,0.25,na.rm=TRUE)+quantile(data,0.75,na.rm=TRUE)}
+  if(Under==TRUE){cutoff<-function(data) quantile(data,0.25,na.rm=TRUE)-(quantile(data,0.75,na.rm=TRUE)-quantile(data,0.25,na.rm=TRUE))}
   
   gene_cut<-apply_pb(data.matrix(x3),2,cutoff,Title="Calculating cut-offs ...")
   
@@ -72,8 +72,8 @@ oss<-function(data_d,data_n,data_all,Under=under){
   #calculate oss
   oss<-c(rep(0,dim(y4)[2]))
   for (i in 1:dim(y4)[2]){
-    if(Under==F){oss[i]<-sum(subset(y4[,i],y4[,i]>gene_cut[i]))}
-    if(Under==T){oss[i]<-sum(subset(y4[,i],y4[,i]<gene_cut[i]))}
+    if(Under==FALSE){oss[i]<-sum(subset(y4[,i],y4[,i]>gene_cut[i]))}
+    if(Under==TRUE){oss[i]<-sum(subset(y4[,i],y4[,i]<gene_cut[i]))}
   }
   names(oss)<-colnames(data_all)
   return(oss)
@@ -92,31 +92,31 @@ data2o<-oss(data1,data2,data3)
 ### Change point model and output ###
 #####################################
 if(is.null(cpmtype) & !is.null(p)){
-  if(under==F){data3o<-ifelse(data2o>quantile(data2o, p,na.rm=TRUE), data2o, NA)}
-  if(under==T){data3o<-ifelse(data2o<quantile(data2o, p,na.rm=TRUE), data2o, NA)}
+  if(under==FALSE){data3o<-ifelse(data2o>quantile(data2o, p,na.rm=TRUE), data2o, NA)}
+  if(under==TRUE){data3o<-ifelse(data2o<quantile(data2o, p,na.rm=TRUE), data2o, NA)}
 }
 if(!is.null(cpmtype) & is.null(p)){  
-  if(under==F){data2o.s<-sort(data2o,decreasing=T)}
-  if(under==T){data2o.s<-sort(data2o)}
+  if(under==FALSE){data2o.s<-sort(data2o,decreasing=TRUE)}
+  if(under==TRUE){data2o.s<-sort(data2o)}
   
-  if (diff==F){
+  if (diff==FALSE){
     cpm_o<-detectChangePoint(data2o.s,cpmType="Mann-Whitney", ARL0=500, startup=6)
   }
-  if (diff==T){
+  if (diff==TRUE){
     diffo<-c(rep(0,length(data2o)))
     for (i in 1:length(data2o)-1){
       diffo[i]<-abs(data2o.s[i]-data2o.s[i+1])
     }
-    diffo<-subset(data2o,is.nan(diffo)==F)
-    diffo<-subset(data2o,is.na(diffo)==F)
+    diffo<-subset(data2o,is.nan(diffo)==FALSE)
+    diffo<-subset(data2o,is.na(diffo)==FALSE)
     cpm_o<-detectChangePoint(diffo,cpmType="Mann-Whitney", ARL0=500, startup=6)
   }  
-  if(under==F){data3o<-ifelse(data2o>=data2o.s[cpm_o$changePoint], data2o, NA)}
-  if(under==T){data3o<-ifelse(data2o<=data2o.s[cpm_o$changePoint], data2o, NA)}
+  if(under==FALSE){data3o<-ifelse(data2o>=data2o.s[cpm_o$changePoint], data2o, NA)}
+  if(under==TRUE){data3o<-ifelse(data2o<=data2o.s[cpm_o$changePoint], data2o, NA)}
 }  
 data4o<-subset(data3o, data3o!="NA")
 
-if(num.id==T){
+if(num.id==TRUE){
   noX<-substr(names(data4o), 2,15)
   noX1<-unique(noX)
   if(!is.null(annotation)){
@@ -127,7 +127,7 @@ if(num.id==T){
   else {gso<-noX1
         val<-as.vector(data4o)}
 }
-if(num.id==F){
+if(num.id==FALSE){
   #probes<-unique(names(data4))
   if(!is.null(annotation)){
     gso<-annotation[annotation[,annID] %in% names(data4o),c(annID,annName)]

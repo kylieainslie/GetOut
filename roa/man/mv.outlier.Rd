@@ -8,7 +8,7 @@ Multivariate Outlier Statistic
 Outliers can have biological relevance when determined using gene expression, RNA-Seq, methylation, or other types of data. Three approaches have been previously developed: Cancer Profile Outlier Analysis (COPA), Outlier Sum Statistic (OSS), and  Gene Tissue Index (GTI). This multivariate statistic combines COPA, OSS, and GTI into a score statistic to determine outliers.
 }
 \usage{
-mv.outlier(data, annotation=NULL, annID, annName, save.path=NULL, cut=0.85,cpmtype="Mann-Whitney",num.id=T, under=F, diff=T, p=NULL)
+mv.outlier(data, annotation=NULL, annID, annName, save.path=NULL, cut=0.85,cpmtype="Mann-Whitney",num.id=TRUE, under=FALSE, diff=TRUE, p=NULL)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{

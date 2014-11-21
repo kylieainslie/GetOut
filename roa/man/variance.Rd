@@ -7,7 +7,7 @@ Outlier Detection Using Variance}
 Outliers can have biological relevance when determined using gene expression, RNA-Seq, methylation, or other types of data. Genes with outlying samples have high variability. This function calculates the variance across samples for each gene and determines outliers using a change point model.
 }
 \usage{
-variance(data, annotation = NULL, annID, annName, save.path = NULL, diff = T, cpmtype = "Mann-Whitney", cut = 0.85, num.id = T, p = NULL)
+variance(data, annotation = NULL, annID, annName, save.path = NULL, diff = TRUE, cpmtype = "Mann-Whitney", cut = 0.85, num.id = TRUE, p = NULL)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{

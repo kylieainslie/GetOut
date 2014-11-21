@@ -8,7 +8,7 @@ Two Group Gene Tissue Index
 Outliers can have biological relevance when determined using gene expression, RNA-Seq, methylation, or other types of data. Mpindi et al. introduced the Gene Tissue Index (GTI) as a method of detecting outliers in cancer samples. This function calculates two group GTI statistics and determines outliers in tumor samples versus normal samples using either a change point model or a user-defined threshold.
 }
 \usage{
-gti2(data_d, data_n, data_all, annotation = NULL, annID, annName, save.path = NULL, diff = T, cpmtype = "Mann-Whitney", num.id = T, under = F, p = NULL)
+gti2(data_d, data_n, data_all, annotation = NULL, annID, annName, save.path = NULL, diff = TRUE, cpmtype = "Mann-Whitney", num.id = TRUE, under = FALSE, p = NULL)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{

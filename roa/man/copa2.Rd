@@ -8,7 +8,7 @@ Two Group Cancer Outlier Profile Analysis
 Outliers can have biological relevance when determined using gene expression, RNA-Seq, methylation, or other types of data. Tomlins et al. introduced the Cancer Profile Outlier Analysis (COPA) as a method of detecting outliers in cancer samples versus normal samples. This function calculates COPA statistics and determines outliers in disease samples relative to normal samples. The threshold by which outliers are identified can be determined using a change point model or user-defined.
 }
 \usage{
-copa2(data_d, data_n, data_all, annotation = NULL, annID, annName, save.path = NULL, diff = T, cpmtype = "Mann-Whitney", cut = 0.85, num.id = T, under = F, p = NULL)
+copa2(data_d, data_n, data_all, annotation = NULL, annID, annName, save.path = NULL, diff = TRUE, cpmtype = "Mann-Whitney", cut = 0.85, num.id = TRUE, under = FALSE, p = NULL)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{

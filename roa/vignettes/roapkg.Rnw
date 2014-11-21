@@ -83,37 +83,37 @@ options(width=60)
 The univariate approach incorporates all three previously mentioned outlier methods in addition to a simple variance estimate to identify a robust list of outliers. Each outlier statistic is calculated for each gene then, using either a change point model (using the \textbf{cpm} R package \cite{cpm}) or a user-defined cut-off, outliers are determined for each statistic. To apply the univariate approach to a dataset use the uv.outlier (for data containing only disease samples) or uv.outlier2 function (for data containing both disease and normal samples). Detailed usage of the single group functionality of \textbf{roa} follows. For detailed examples of how to use the two group functions available in \textbf{roa} see Section 6.
 <<results=hide>>=
 library(roa)
-uv.outlier(data,num.id=F)
+uv.outlier(data,num.id=FALSE)
 @
 If an annotation file is not specified four method-specific lists of outliers are outputted. If an annotation file is specified, a single list of outliers is outputted with a column that indicates the method that selected each outlier. The lists of outlier genes from each of the statistics can be further filtered by intersection to identify genes in common among all four or three of the four method-specific lists.
 <<>>=
-uv.outlier(data,annotation=annot,annID=1,annName=2,common.genes=T,
-           num.id=F)
+uv.outlier(data,annotation=annot,annID=1,annName=2,common.genes=TRUE,
+           num.id=FALSE)
 @
 The default method of identifying a threshold by which outliers are identified is using the Mann-Whitney statistic in a nonparametric change point model framework. The \textbf{cpm} package is used to identify the change point and can be implemented using the Student-t, Bartlett, and GLR statistics for sequences known to be Gaussian; Fisher's Exact Test statistic for Bernoulli sequences; Exponential statistic for Exponential sequences, and Mann-Whitney, Mood, Lepage, Kolmogorov-Smirnov, and Cramer-von-Mises statistics for sequences in which the distribution is not known \cite{cpm}. For more information on \textbf{cpm}, see the \textbf{cpm} manual available at <http://www.gordonjross.co.uk/cpm.pdf>.
 <<results=hide>>=
-uv.outlier(data,cpmtype="Mann-Whitney",num.id=F)
+uv.outlier(data,cpmtype="Mann-Whitney",num.id=FALSE)
 @
 In addition to the identification of an outlier threshold using a change point model framework, a user-defined cut-off can be specified.
 <<results=hide>>=
-uv.outlier(data,p=0.95,num.id=F)
+uv.outlier(data,p=0.95,num.id=FALSE)
 @
 COPA, OSS, and GTI were developed to identify over expressed gene expression outliers. However, all of these statistics have been adapted to identify low-valued outliers, such as under expressed or hypo methylated genes. Specifying under=T in any of the functions will results in the identification of low-valued outliers.   
 <<results=hide>>=
-uv.outlier(data,cut=0.15,under=T,num.id=F)
+uv.outlier(data,cut=0.15,under=TRUE,num.id=FALSE)
 @
 A results file and threshold figure generated from each list of outliers can be outputted if a path is specified.
 \subsubsection{Figures}
 In addition to the lists of outliers selected by each outlier statistic, uv.outlier produces a threshold plot for each statistic. If no path indicating where output should be saved is identified, threshold plots are outputted directly into R as one figure. 
 <<results=hide,fig=TRUE>>=
-uv.outlier(data,num.id=F)
+uv.outlier(data,num.id=FALSE)
 @
 If a path is identified, a jpeg file of the threshold plot and a plot of the D statistics from the change point model \cite{cpm} is output for each outlier statistic.
 
 \subsection{Individual Outlier Statistics}
 In addition, if the user would rather identify outliers using only one method instead of all four, each outlier detection method has both a single group and two group function. For example, if an investigator's favorite outlier detection method was the OSS, outliers could be identified using just the OSS. Each individual outlier statistic function can produce a threshold plot showing the threshold by which outlier were identified.
 <<fig=T>>=
-oss(data,num.id=F)
+oss(data,num.id=FALSE)
 @
 
 \section{Multivariate Outlier Analysis}
@@ -123,18 +123,18 @@ S_j=\mathbf{\theta}_j^T \mathbf{V} \mathbf{\theta}_j.
 \end{equation}
 Finally, outliers are determined by applying either a change point model \cite{cpm} or a user-defined cut-off to the vector of score statistics, $\mathbf{S}=(S_1,S_2,\dots,S_n)^T$. The threshold by which outliers are identified can be visualized by the outputted threshold plot. Similarly to the univariate approach, the multivariate approach can be used with single group data (mv.outlier) or two group data (mv.outlier2).
 <<fig=TRUE>>=
-mv.outlier(data,num.id=F)
+mv.outlier(data,num.id=FALSE)
 @
 As with the univariate approach, the default method of identifying an outlier threshold is using a change point model framework with the Mann-Whitney statistic. As mentioned in Section 3.1, other parametric and nonparametric statistics can be implemented with the change point model framework \cite{cpm}. A user-defined cut-off can also be specified for outlier identification.
 <<results=hide>>=
-mv.outlier(data,p=0.95,num.id=F)
+mv.outlier(data,p=0.95,num.id=FALSE)
 @
 \section{Additional Capabilities}
 \subsection{Outlying Samples}
-Often when an outlier is identified it is of interest to determine which samples had outlying values,i.e., which samples caused that outlier to be an outlier. If those samples have a common trait, it may be indicative of a subgroup within the samples. The function outlying.samples provides the ability to determine which samples have outlying values. When using outlying.samples, a list with two components is returned. The first component is a matrix with each row representing a sample and each column representing an outlier. A 1 in element [i,j] indicates that sample i has an outlying value for outlier j. The second component is a two column matrix with the sample IDs in column one and an indicator of whether each sample has an outlying value in at least one outlier.
+Often when an outlier is identified it is of interest to determine which samples had outlying values,i.e., which samples caused that outlier to be an outlier. If those samples have a common trait, it may be indicative of a subgroup within the samples. The function outlying.samples provides the ability to determine which samples have outlying values by using a change point model or a user-defined threshold. When using outlying.samples, a list with two components is returned. The first component is a matrix with each row representing a sample and each column representing an outlier. A 1 in element [i,j] indicates that sample i has an outlying value for outlier j. The second component is a two column matrix with the sample IDs in column one and an indicator of whether each sample has an outlying value in at least one outlier.
 
 <<>>=
-out<-mv.outlier(data,num.id=F)
+out<-mv.outlier(data,num.id=FALSE)
 os<-outlying.samples(data,outliers=out[,1])
 os$by.outlier[1:25,1:8]
 os$sample.ind[1:25,]

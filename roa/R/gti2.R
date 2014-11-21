@@ -1,5 +1,5 @@
-gti2<-function(data_d,data_n,data_all, annotation=NULL, annID,annName,save.path=NULL,diff=T, 
-               cpmtype="Mann-Whitney",num.id=T,under=F,p=NULL){
+gti2<-function(data_d,data_n,data_all, annotation=NULL, annID,annName,save.path=NULL,diff=TRUE, 
+               cpmtype="Mann-Whitney",num.id=TRUE,under=FALSE,p=NULL){
 
   #check for missing arguments
   if(missing(data_d) | missing(data_n) | missing(data_all)){
@@ -54,18 +54,18 @@ gti2<-function(data_d,data_n,data_all, annotation=NULL, annID,annName,save.path=
   num2 = dim(data_d)[1]
   
   #GTI - a statistic is calculated for each group (1=normal; 2=disease)
- gti1 = function(data) (sum(as.numeric(data)>as.numeric((quantile(data,0.75,na.rm=T)-quantile(data,0.25,na.rm=T))+quantile(data,0.75,na.rm=T)))/num1)*(mean(subset(data,data>((quantile(data,0.75,na.rm=T)-quantile(data,0.25,na.rm=T))+quantile(data,0.75,na.rm=T))))+((quantile(data,0.75,na.rm=T)-quantile(data,0.25,na.rm=T))+quantile(data,0.75,na.rm=T)))/mean(subset(data,data>((quantile(data,0.75,na.rm=T)-quantile(data,0.25,na.rm=T))+quantile(data,0.75,na.rm=T))))  
- gti2 = function(data) (sum(as.numeric(data)>as.numeric((quantile(data,0.75,na.rm=T)-quantile(data,0.25,na.rm=T))+quantile(data,0.75,na.rm=T)))/num2)*(mean(subset(data,data>((quantile(data,0.75,na.rm=T)-quantile(data,0.25,na.rm=T))+quantile(data,0.75,na.rm=T))))+((quantile(data,0.75,na.rm=T)-quantile(data,0.25,na.rm=T))+quantile(data,0.75,na.rm=T)))/mean(subset(data,data>((quantile(data,0.75,na.rm=T)-quantile(data,0.25,na.rm=T))+quantile(data,0.75,na.rm=T))))  
+ gti1 = function(data) (sum(as.numeric(data)>as.numeric((quantile(data,0.75,na.rm=TRUE)-quantile(data,0.25,na.rm=TRUE))+quantile(data,0.75,na.rm=TRUE)))/num1)*(mean(subset(data,data>((quantile(data,0.75,na.rm=TRUE)-quantile(data,0.25,na.rm=TRUE))+quantile(data,0.75,na.rm=TRUE))))+((quantile(data,0.75,na.rm=TRUE)-quantile(data,0.25,na.rm=TRUE))+quantile(data,0.75,na.rm=TRUE)))/mean(subset(data,data>((quantile(data,0.75,na.rm=TRUE)-quantile(data,0.25,na.rm=TRUE))+quantile(data,0.75,na.rm=TRUE))))  
+ gti2 = function(data) (sum(as.numeric(data)>as.numeric((quantile(data,0.75,na.rm=TRUE)-quantile(data,0.25,na.rm=TRUE))+quantile(data,0.75,na.rm=TRUE)))/num2)*(mean(subset(data,data>((quantile(data,0.75,na.rm=TRUE)-quantile(data,0.25,na.rm=TRUE))+quantile(data,0.75,na.rm=TRUE))))+((quantile(data,0.75,na.rm=TRUE)-quantile(data,0.25,na.rm=TRUE))+quantile(data,0.75,na.rm=TRUE)))/mean(subset(data,data>((quantile(data,0.75,na.rm=TRUE)-quantile(data,0.25,na.rm=TRUE))+quantile(data,0.75,na.rm=TRUE))))  
  
- gti_under1 = function(data) (sum(as.numeric(data)<as.numeric((quantile(data,0.25,na.rm=T)-quantile(data,0.75,na.rm=T))+quantile(data,0.25,na.rm=T)))/num1)*(mean(subset(data,data<((quantile(data,0.25,na.rm=T)-quantile(data,0.75,na.rm=T))+quantile(data,0.25,na.rm=T))))-((quantile(data,0.25,na.rm=T)-quantile(data,0.75,na.rm=T))+quantile(data,0.25,na.rm=T)))/mean(subset(data,data<((quantile(data,0.25,na.rm=T)-quantile(data,0.75,na.rm=T))+quantile(data,0.25,na.rm=T))))
- gti_under2 = function(data) (sum(as.numeric(data)<as.numeric((quantile(data,0.25,na.rm=T)-quantile(data,0.75,na.rm=T))+quantile(data,0.25,na.rm=T)))/num2)*(mean(subset(data,data<((quantile(data,0.25,na.rm=T)-quantile(data,0.75,na.rm=T))+quantile(data,0.25,na.rm=T))))-((quantile(data,0.25,na.rm=T)-quantile(data,0.75,na.rm=T))+quantile(data,0.25,na.rm=T)))/mean(subset(data,data<((quantile(data,0.25,na.rm=T)-quantile(data,0.75,na.rm=T))+quantile(data,0.25,na.rm=T))))
+ gti_under1 = function(data) (sum(as.numeric(data)<as.numeric((quantile(data,0.25,na.rm=TRUE)-quantile(data,0.75,na.rm=TRUE))+quantile(data,0.25,na.rm=TRUE)))/num1)*(mean(subset(data,data<((quantile(data,0.25,na.rm=TRUE)-quantile(data,0.75,na.rm=TRUE))+quantile(data,0.25,na.rm=TRUE))))-((quantile(data,0.25,na.rm=TRUE)-quantile(data,0.75,na.rm=TRUE))+quantile(data,0.25,na.rm=TRUE)))/mean(subset(data,data<((quantile(data,0.25,na.rm=TRUE)-quantile(data,0.75,na.rm=TRUE))+quantile(data,0.25,na.rm=TRUE))))
+ gti_under2 = function(data) (sum(as.numeric(data)<as.numeric((quantile(data,0.25,na.rm=TRUE)-quantile(data,0.75,na.rm=TRUE))+quantile(data,0.25,na.rm=TRUE)))/num2)*(mean(subset(data,data<((quantile(data,0.25,na.rm=TRUE)-quantile(data,0.75,na.rm=TRUE))+quantile(data,0.25,na.rm=TRUE))))-((quantile(data,0.25,na.rm=TRUE)-quantile(data,0.75,na.rm=TRUE))+quantile(data,0.25,na.rm=TRUE)))/mean(subset(data,data<((quantile(data,0.25,na.rm=TRUE)-quantile(data,0.75,na.rm=TRUE))+quantile(data,0.25,na.rm=TRUE))))
  
   gti<-function(data_d,data_n,data_all,Under=under){
-    if(Under==F){
+    if(Under==FALSE){
       data_norm <- apply_pb(data1,2,gti1, Title="Calculating GTI ...")
       data_dis<- apply_pb(data2,2,gti2, Title="Calculating GTI ...")
     }
-    if(Under==T){
+    if(Under==TRUE){
       data_norm <- apply_pb(data1,2,gti_under1, Title="Calculating GTI ...")
       data_dis<- apply_pb(data2,2,gti_under2, Title="Calculating GTI ...")
     }
@@ -81,31 +81,31 @@ gti2<-function(data_d,data_n,data_all, annotation=NULL, annID,annName,save.path=
   data2g<-gti(data1,data2,data3)
   
 if(is.null(cpmtype) & !is.null(p)){
-    if(under==F){data3<-ifelse(data2g>quantile(data2g, p,na.rm=TRUE), data2g, NA)}
-    if(under==T){data3<-ifelse(data2g<quantile(data2g, p,na.rm=TRUE), data2g, NA)}
+    if(under==FALSE){data3<-ifelse(data2g>quantile(data2g, p,na.rm=TRUE), data2g, NA)}
+    if(under==TRUE){data3<-ifelse(data2g<quantile(data2g, p,na.rm=TRUE), data2g, NA)}
 }
 if(!is.null(cpmtype) & is.null(p)){  
-  if(under==F){data2g.s<-sort(data2g,decreasing=T)}
-  if(under==T){data2g.s<-sort(data2g)}
+  if(under==FALSE){data2g.s<-sort(data2g,decreasing=TRUE)}
+  if(under==TRUE){data2g.s<-sort(data2g)}
   
-  if (diff==F){
+  if (diff==FALSE){
     cpm_g<-detectChangePoint(data2g.s,cpmType=cpmtype, ARL0=500, startup=20)
   }
-  if (diff==T){
+  if (diff==TRUE){
     diffg<-c(rep(0,length(data2g)))
     for (i in 1:length(data2g)-1){
       diffg[i]<-abs(data2g.s[i]-data2g.s[i+1])
     }
-    diffg1<-subset(diffg,is.nan(diffg)==F)
-    diffg2<-subset(diffg1,is.na(diffg1)==F)
+    diffg1<-subset(diffg,is.nan(diffg)==FALSE)
+    diffg2<-subset(diffg1,is.na(diffg1)==FALSE)
     cpm_g<-detectChangePoint(diffg2,cpmType="Mann-Whitney", ARL0=500, startup=20)
   }  
-  if(under==F){data3<-ifelse(data2g>=data2g.s[cpm_g$changePoint], data2g, NA)}
-  if(under==T){data3<-ifelse(data2g<=data2g.s[cpm_g$changePoint], data2g, NA)}
+  if(under==FALSE){data3<-ifelse(data2g>=data2g.s[cpm_g$changePoint], data2g, NA)}
+  if(under==TRUE){data3<-ifelse(data2g<=data2g.s[cpm_g$changePoint], data2g, NA)}
 }
 data4<-subset(data3, data3!="NA")
   
-  if(num.id==T){
+  if(num.id==TRUE){
     noX<-substr(names(data4), 2,15)
     noX1<-unique(noX)
     if(!is.null(annotation)){
@@ -116,7 +116,7 @@ data4<-subset(data3, data3!="NA")
     else {gsg<-noX1
           val<-as.vector(data4)}
   }
-  if(num.id==F){
+  if(num.id==FALSE){
     #probes<-unique(names(data4))
     if(!is.null(annotation)){
       gsg<-annotation[annotation[,annID] %in% names(data4),c(annID,annName)]

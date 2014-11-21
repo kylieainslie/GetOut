@@ -1,5 +1,5 @@
-variance<-function(data, annotation=NULL, annID,annName,save.path=NULL,diff=T, cpmtype="Mann-Whitney",cut=0.85,
-                  num.id=T,p=NULL){
+variance<-function(data, annotation=NULL, annID,annName,save.path=NULL,diff=TRUE, cpmtype="Mann-Whitney",cut=0.85,
+                  num.id=TRUE,p=NULL){
 
   #check for missing arguments
   if(missing(data)){
@@ -56,18 +56,18 @@ variance<-function(data, annotation=NULL, annID,annName,save.path=NULL,diff=T, c
   data1<-data.matrix(data)
 
   data2v <- apply_pb(data1,2,var.stat,Title="Calculating variance ...")
-  data2v<-subset(data2v,is.nan(data2v)==F)
-  data2v.s<-sort(data2v,decreasing=T)
+  data2v<-subset(data2v,is.nan(data2v)==FALSE)
+  data2v.s<-sort(data2v,decreasing=TRUE)
   
 if(is.null(cpmtype) & !is.null(p)){
     data3v<-ifelse(data2v>quantile(data2v, p,na.rm=TRUE), data2v, NA)
 }
   
 if(!is.null(cpmtype) & is.null(p)){
-  if (diff==F){
+  if (diff==FALSE){
     cpm_v<-detectChangePoint(data2v.s,cpmType="Mann-Whitney", ARL0=500, startup=20)
   }
-  if (diff==T){
+  if (diff==TRUE){
   diffv<-c(rep(0,length(data2v)))
     for (i in 1:length(data2v)-1){
     diffv[i]<-abs(data2v.s[i]-data2v.s[i+1])
@@ -78,7 +78,7 @@ if(!is.null(cpmtype) & is.null(p)){
 }
 data4v<-subset(data3v, data3v!="NA")
 
-  if(num.id==T){
+  if(num.id==TRUE){
     noX<-substr(names(data4v), 2,15)
     noX1<-unique(noX)
     if(!is.null(annotation)){
@@ -89,7 +89,7 @@ data4v<-subset(data3v, data3v!="NA")
     else {gsv<-noX1
           val<-as.vector(data4v)}
   }
-  if(num.id==F){
+  if(num.id==FALSE){
     #probes<-unique(names(data4))
     if(!is.null(annotation)){
       gsv<-annotation[annotation[,annID] %in% names(data4v),c(annID,annName)]
@@ -104,7 +104,7 @@ data4v<-subset(data3v, data3v!="NA")
   if(!is.null(save.path)){
     write.csv(var_out,file=paste(save.path,"var_outlier_1grp_cpm.csv"))
   }
-#  if (outsample==T & !is.null(save.path)){
+#  if (outsample==TRUE & !is.null(save.path)){
 #    outlying.samples(data,names(data4),over_cut=cut,stat="Var",savepath=save.path) 
 #  }
 

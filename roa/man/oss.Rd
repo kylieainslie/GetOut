@@ -8,7 +8,7 @@ Outlier Sum Statistic
 Outliers can have biological relevance when determined using gene expression, RNA-Seq, methylation, or other types of data. Tibshirani and Hastie introduced the Outlier Sum Statistic (OSS) as a method of detecting outliers in cancer samples. This function calculates OSS and determines outliers using a change point model.
 }
 \usage{
-oss(data, annotation = NULL, annID, annName, save.path = NULL, diff = T, cpmtype = "Mann-Whitney", num.id = T, under = F, p = NULL)
+oss(data, annotation = NULL, annID, annName, save.path = NULL, diff = TRUE, cpmtype = "Mann-Whitney", num.id = TRUE, under = FALSE, p = NULL)
 }
 \arguments{
   \item{data}{

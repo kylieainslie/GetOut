@@ -8,7 +8,7 @@ Gene Tissue Index
 Outliers can have biological relevance when determined using gene expression, RNA-Seq, methylation, or other types of data. Mpindi et al. introduced the Gene Tissue Index (GTI) as a method of detecting outliers in cancer samples. This function calculates GTI statistics and determines outliers using a change point model.
 }
 \usage{
-gti(data, annotation = NULL, annID, annName, save.path = NULL, diff = T, cpmtype = "Mann-Whitney", num.id = T, under = F, p = NULL)
+gti(data, annotation = NULL, annID, annName, save.path = NULL, diff = TRUE, cpmtype = "Mann-Whitney", num.id = TRUE, under = FALSE, p = NULL)
 }
 \arguments{
   \item{data}{

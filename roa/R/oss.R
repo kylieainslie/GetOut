@@ -1,5 +1,5 @@
-oss<-function(data, annotation=NULL, annID,annName,save.path=NULL,diff=T, cpmtype="Mann-Whitney",
-              num.id=T,under=F,p=NULL){
+oss<-function(data, annotation=NULL, annID,annName,save.path=NULL,diff=TRUE, cpmtype="Mann-Whitney",
+              num.id=TRUE,under=FALSE,p=NULL){
 
   #check for missing arguments
   if(missing(data)){
@@ -49,43 +49,43 @@ oss<-function(data, annotation=NULL, annID,annName,save.path=NULL,diff=T, cpmtyp
   ### OSS Stat ###
   ################
   
-  oss = function(data) sum(subset(data,data>((quantile(data,0.75,na.rm=T)-quantile(data,0.25,na.rm=T))+quantile(data,0.75,na.rm=T)))-median(data,na.rm=T))/mad(data,na.rm=T)
-  oss_under = function(data) sum(subset(data,data<(quantile(data,0.25,na.rm=T)-(quantile(data,0.75,na.rm=T)-quantile(data,0.25,na.rm=T))))-median(data))/mad(data)
+  oss = function(data) sum(subset(data,data>((quantile(data,0.75,na.rm=TRUE)-quantile(data,0.25,na.rm=TRUE))+quantile(data,0.75,na.rm=TRUE)))-median(data,na.rm=TRUE))/mad(data,na.rm=TRUE)
+  oss_under = function(data) sum(subset(data,data<(quantile(data,0.25,na.rm=TRUE)-(quantile(data,0.75,na.rm=TRUE)-quantile(data,0.25,na.rm=TRUE))))-median(data))/mad(data)
   
   #Convert data frame into a matrix
   data1<-data.matrix(data)
   
-  if(under==F){data2o <- apply_pb(data1,2,oss,Title="Calculating OSS ...")}
-  if(under==T){data2o <- apply_pb(data1,2,oss_under,Title="Calculating OSS ...")}
-  #data2o<-subset(data2o,is.nan(data2o)==F)
-  #data2o<-subset(data2o,is.na(data2o)==F)
+  if(under==FALSE){data2o <- apply_pb(data1,2,oss,Title="Calculating OSS ...")}
+  if(under==TRUE){data2o <- apply_pb(data1,2,oss_under,Title="Calculating OSS ...")}
+  #data2o<-subset(data2o,is.nan(data2o)==FALSE)
+  #data2o<-subset(data2o,is.na(data2o)==FALSE)
   #data2o<-subset(data2o,data2o!="Inf")
 if(is.null(cpmtype) & !is.null(p)){
-    if(under==F){data3o<-ifelse(data2o>quantile(data2o, p,na.rm=TRUE), data2o, NA)}
-    if(under==T){data3o<-ifelse(data2o<quantile(data2o, p,na.rm=TRUE), data2o, NA)}
+    if(under==FALSE){data3o<-ifelse(data2o>quantile(data2o, p,na.rm=TRUE), data2o, NA)}
+    if(under==TRUE){data3o<-ifelse(data2o<quantile(data2o, p,na.rm=TRUE), data2o, NA)}
 }
 if(!is.null(cpmtype) & is.null(p)){  
-  if(under==F){data2o.s<-sort(data2o,decreasing=T)}
-  if(under==T){data2o.s<-sort(data2o)}
+  if(under==FALSE){data2o.s<-sort(data2o,decreasing=TRUE)}
+  if(under==TRUE){data2o.s<-sort(data2o)}
  
-  if (diff==F){
+  if (diff==FALSE){
     cpm_o<-detectChangePoint(data2o.s,cpmType="Mann-Whitney", ARL0=500, startup=6)
   }
-  if (diff==T){
+  if (diff==TRUE){
     diffo<-c(rep(0,length(data2o)))
     for (i in 1:length(data2o)-1){
       diffo[i]<-abs(data2o.s[i]-data2o.s[i+1])
     }
-    diffo<-subset(data2o,is.nan(diffo)==F)
-    diffo<-subset(data2o,is.na(diffo)==F)
+    diffo<-subset(data2o,is.nan(diffo)==FALSE)
+    diffo<-subset(data2o,is.na(diffo)==FALSE)
     cpm_o<-detectChangePoint(diffo,cpmType="Mann-Whitney", ARL0=500, startup=6)
   }  
-  if(under==F){data3o<-ifelse(data2o>=data2o.s[cpm_o$changePoint], data2o, NA)}
-  if(under==T){data3o<-ifelse(data2o<=data2o.s[cpm_o$changePoint], data2o, NA)}
+  if(under==FALSE){data3o<-ifelse(data2o>=data2o.s[cpm_o$changePoint], data2o, NA)}
+  if(under==TRUE){data3o<-ifelse(data2o<=data2o.s[cpm_o$changePoint], data2o, NA)}
 }  
 data4o<-subset(data3o, data3o!="NA")
   
-  if(num.id==T){
+  if(num.id==TRUE){
     noX<-substr(names(data4o), 2,15)
     noX1<-unique(noX)
     if(!is.null(annotation)){
@@ -96,7 +96,7 @@ data4o<-subset(data3o, data3o!="NA")
     else {gso<-noX1
           val<-as.vector(data4o)}
   }
-  if(num.id==F){
+  if(num.id==FALSE){
     #probes<-unique(names(data4))
     if(!is.null(annotation)){
       gso<-annotation[annotation[,annID] %in% names(data4o),c(annID,annName)]

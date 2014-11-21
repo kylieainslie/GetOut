@@ -8,7 +8,7 @@ Determining Outlying Samples
 When outliers are identified among samples, it is often of interest to find out which samples have outlying expression for each outlier. This function identifies outlying samples for each outlier and samples that have outlying values for at least one outlier.
 }
 \usage{
-outlying.samples(data, outliers, cut = 0.85,cpm = T, cpmtype = "Mann-Whitney", savepath = NULL, diff = T, under = F)
+outlying.samples(data, outliers, cut = 0.85,cpm = TRUE, cpmtype = "Mann-Whitney", savepath = NULL, diff = TRUE, under = FALSE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{

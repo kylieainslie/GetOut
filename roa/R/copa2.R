@@ -1,5 +1,5 @@
-copa2<-function(data_d,data_n,data_all, annotation=NULL, annID,annName,save.path=NULL,diff=T, cpmtype="Mann-Whitney",
-                cut=0.85,num.id=T,under=F,p=NULL){
+copa2<-function(data_d,data_n,data_all, annotation=NULL, annID,annName,save.path=NULL,diff=TRUE, cpmtype="Mann-Whitney",
+                cut=0.85,num.id=TRUE,under=FALSE,p=NULL){
 
   #check for missing arguments
   if(missing(data_d) | missing(data_n) | missing(data_all)){
@@ -21,8 +21,8 @@ copa2<-function(data_d,data_n,data_all, annotation=NULL, annID,annName,save.path
   
   
   #check if cut-off matches under status
-  if(under==T & cut>0.5){warning("cut value doesn't match under status")}
-  if(under==F & cut<0.5){warning("cut value doesn't match under status")}
+  if(under==TRUE & cut>0.5){warning("cut value doesn't match under status")}
+  if(under==FALSE & cut<0.5){warning("cut value doesn't match under status")}
   
   #both cpmtype and p cannot be null
   if(!is.null(cpmtype)){p=NULL}
@@ -60,15 +60,15 @@ apply_pb <- function(X, MARGIN, FUN, ...,Title="Calculating ...")
 #take rth percentile of disease group
 copa<-function(data_d,data_n,data_all,Cut=cut){
   #calculate quantile specified by cut for each gene
-  r<-function(data) (quantile(data,Cut,na.rm=T)) #quantile function
+  r<-function(data) (quantile(data,Cut,na.rm=TRUE)) #quantile function
   x<-data.matrix(data_d)
   x1<-apply_pb(x,2,r)
   #calculate median
-  #median1<- function(data) quantile(data,0.5,na.rm=T)
+  #median1<- function(data) quantile(data,0.5,na.rm=TRUE)
   data1<-data.matrix(data_all)
   med<-apply_pb(data1,2,median,Title="Calculating medians ...")
   #calculate mad
-  #mad1<-function(data) mad(data,na.rm=T)
+  #mad1<-function(data) mad(data,na.rm=TRUE)
   mad1<-apply_pb(data1,2,mad,Title="Calculating median absolute deviations ...")
   #calculate copa
   copa<-(x1-med)/mad1
@@ -82,36 +82,36 @@ copa<-function(data_d,data_n,data_all,Cut=cut){
 
   
   data2c <- copa(data1,data2,data3,Cut=cut)
-  data2c<-subset(data2c,is.nan(data2c)==F)
-  data2c<-subset(data2c,is.na(data2c)==F)
+  data2c<-subset(data2c,is.nan(data2c)==FALSE)
+  data2c<-subset(data2c,is.na(data2c)==FALSE)
   data2c<-subset(data2c,data2c!="Inf")
 
 if(is.null(cpmtype) & !is.null(p)){
-  if(under==F){data3<-ifelse(data2c>quantile(data2c, p,na.rm=TRUE), data2c, NA)}
-  if(under==T){data3<-ifelse(data2c<quantile(data2c, p,na.rm=TRUE), data2c, NA)}
+  if(under==FALSE){data3<-ifelse(data2c>quantile(data2c, p,na.rm=TRUE), data2c, NA)}
+  if(under==TRUE){data3<-ifelse(data2c<quantile(data2c, p,na.rm=TRUE), data2c, NA)}
 }
 if(!is.null(cpmtype) & is.null(p)){
-  if(under==F){data2c.s<-sort(data2c,decreasing=T)}
-  if(under==T){data2c.s<-sort(data2c)}
+  if(under==FALSE){data2c.s<-sort(data2c,decreasing=TRUE)}
+  if(under==TRUE){data2c.s<-sort(data2c)}
   
-  if (diff==F){
+  if (diff==FALSE){
     cpm_c<-detectChangePoint(data2c.s,cpmType=cpmtype, ARL0=500, startup=20)
   }
-  if (diff==T){
+  if (diff==TRUE){
     diffc<-c(rep(0,length(data2c)))
     for (i in 1:length(data2c)-1){
       diffc[i]<-abs(data2c.s[i]-data2c.s[i+1])
     }
-    diffc<-subset(data2c,is.nan(diffc)==F)
-    diffc<-subset(data2c,is.na(diffc)==F)
+    diffc<-subset(data2c,is.nan(diffc)==FALSE)
+    diffc<-subset(data2c,is.na(diffc)==FALSE)
     cpm_c<-detectChangePoint(diffc,cpmType="Mann-Whitney", ARL0=500, startup=20)
   }  
-  if(under==F){data3c<-ifelse(data2c>=data2c.s[cpm_c$changePoint], data2c, NA)}
-  if(under==T){data3c<-ifelse(data2c<=data2c.s[cpm_c$changePoint], data2c, NA)}
+  if(under==FALSE){data3c<-ifelse(data2c>=data2c.s[cpm_c$changePoint], data2c, NA)}
+  if(under==TRUE){data3c<-ifelse(data2c<=data2c.s[cpm_c$changePoint], data2c, NA)}
 }
 data4c<-subset(data3c, data3c!="NA")
   
-if(num.id==T){
+if(num.id==TRUE){
   noX<-substr(names(data4c), 2,15)
   noX1<-unique(noX)
   if(!is.null(annotation)){
@@ -122,7 +122,7 @@ if(num.id==T){
   else {gsg<-noX1
         val<-as.vector(data4c)}
 }
-if(num.id==F){
+if(num.id==FALSE){
   if(!is.null(annotation)){
     gsg<-annotation[annotation[,annID] %in% names(data4c),c(annID,annName)]
     val<-data4c[names(data4c) %in% gsg[,1]]
@@ -136,10 +136,6 @@ rownames(copa_out)<-NULL
 if(!is.null(save.path)){
   write.csv(copa_out,file=paste(save.path,"copa_outlier_1grp_cpm.csv"))
 }
-#if (outsample==T & !is.null(save.path)){
-#  if(under==F){outlying.samples(data,names(data4c),over_cut=cut,stat="copa",savepath=save.path)}
-#  if(under==T){outlying.samples(data,names(data4c),under_cut=cut,stat="copa",savepath=save.path)}  
-#}
 
 ## COPA cpm plot
 if(!is.null(save.path)){

@@ -8,7 +8,7 @@ Two Group Outlier Sum Statistic
 Outliers can have biological relevance when determined using gene expression, RNA-Seq, methylation, or other types of data. Tibshirani and Hastie introduced the Outlier Sum Statistic (OSS) as a method of detecting outliers in cancer samples versus normal samples. This function calculates the two group OSS and determines outliers using either a change point model or a user-defined threshold.
 }
 \usage{
-oss2(data_d, data_n, data_all, annotation = NULL, annID, annName, save.path = NULL, diff = T, cpmtype = "Mann-Whitney", num.id = T, under = F, p = NULL)
+oss2(data_d, data_n, data_all, annotation = NULL, annID, annName, save.path = NULL, diff = TRUE, cpmtype = "Mann-Whitney", num.id = TRUE, under = FALSE, p = NULL)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{

@@ -1,10 +1,10 @@
 #########################################################
 ### Determining samples with outlying gene expression ###
 #########################################################
-outlying.samples<-function(data,outliers,cut=0.85,cpm=T,cpmtype="Mann-Whitney",
-                           savepath=NULL,diff=T,under=F){  
+outlying.samples<-function(data,outliers,cut=0.85,cpm=TRUE,cpmtype="Mann-Whitney",
+                           savepath=NULL,diff=TRUE,under=FALSE){  
 
-if(cpm==T){cut=NULL}  
+if(cpm==TRUE){cut=NULL}  
 #extract probes from entire data set
 out_probes<-data[,colnames(data) %in% outliers]
 out_probes<-out_probes[,unique(colnames(out_probes))]
@@ -17,25 +17,25 @@ y<-dim(out_probes)[2] #number of columns in outlier data set (number of outlier 
 out_ind<-matrix(c(rep(0,length(outliers)*x)), nrow=x,ncol=length(outliers)) #indicator matrix
 
 #determine which samples had outlying expression values
-if(under==F){
+if(under==FALSE){
   cutoff<-c(rep(0,y))
   if(!is.null(cut)){
     for (i in 1:y){
-      cutoff[i]<-quantile(out_probes[,i],cut,na.rm=T)
+      cutoff[i]<-quantile(out_probes[,i],cut,na.rm=TRUE)
       out_ind[,i]<-ifelse(out_probes[,i]>cutoff[i],1,0)
     }
   }
-  if(cpm==T){
+  if(cpm==TRUE){
     for(i in 1:y){
-      sort.out<-sort(out_probes[,i],decreasing=T)
-      if (diff==F){cpm_s<-detectChangePoint(sort.out,cpmType=cpmtype,ARL0=500,startup=20)}
-      if (diff==T){
+      sort.out<-sort(out_probes[,i],decreasing=TRUE)
+      if (diff==FALSE){cpm_s<-detectChangePoint(sort.out,cpmType=cpmtype,ARL0=500,startup=20)}
+      if (diff==TRUE){
         diffs<-c(rep(0,length(sort.out)))
         for (j in 1:length(sort.out)-1){
           diffs[j]<-sort.out[j]-sort.out[j+1]
         }
-        #diffs1<-subset(diffs,is.nan(diffs)==F)
-        #diffs2<-subset(diffs1,is.na(diffs1)==F)
+        #diffs1<-subset(diffs,is.nan(diffs)==FALSE)
+        #diffs2<-subset(diffs1,is.na(diffs1)==FALSE)
         #diffs3<-subset(diffs2,diffs2!="Inf")
         
         cpm_s<-detectChangePoint(diffs,cpmType=cpmtype,ARL0=500,startup=20)
@@ -45,26 +45,26 @@ if(under==F){
     }
   } 
 }
-if(under==T){
+if(under==TRUE){
   cutoff<-c(rep(0,y))
   if(!is.null(cut)){
     for (i in 1:y){
-      cutoff[i]<-quantile(out_probes[,i],cut,na.rm=T)
+      cutoff[i]<-quantile(out_probes[,i],cut,na.rm=TRUE)
       out_ind[,i]<-ifelse(out_probes[,i]<cutoff[i],1,0)
     }
   }
- if(cpm==T){
+ if(cpm==TRUE){
    for(i in 1:y){
      sort.out<-sort(out_probes[,i])
      cpm_s<-detectChangePoint(sort.out,cpmType=cpmtype, ARL0=500, startup=20)
-     if (diff==F){cpm_s<-detectChangePoint(sort.out,cpmType=cpmtype, ARL0=500, startup=20)}
-     if (diff==T){
+     if (diff==FALSE){cpm_s<-detectChangePoint(sort.out,cpmType=cpmtype, ARL0=500, startup=20)}
+     if (diff==TRUE){
        diffs<-c(rep(0,length(sort.out)))
        for (j in 1:length(sort.out)-1){
          diffs[j]<-sort.out[j]-sort.out[j+1]
        }
-       diffs1<-subset(diffs,is.nan(diffs)==F)
-       diffs2<-subset(diffs1,is.na(diffs1)==F)
+       diffs1<-subset(diffs,is.nan(diffs)==FALSE)
+       diffs2<-subset(diffs1,is.na(diffs1)==FALSE)
        diffs3<-subset(diffs2,diffs2!="Inf")
        
        cpm_s<-detectChangePoint(diffs,cpmType=cpmtype, ARL0=500, startup=20)
@@ -82,8 +82,8 @@ if(!is.null(savepath)){
   pdf(file="outlying_sample_plots2.pdf")
   
   for(i in 1:y){
-    if(under==F){sort.out<-sort(out_probes[,i],decreasing=T)}
-    if(under==T){sort.out<-sort(out_probes[,i])}
+    if(under==FALSE){sort.out<-sort(out_probes[,i],decreasing=TRUE)}
+    if(under==TRUE){sort.out<-sort(out_probes[,i])}
     plot(sort.out,ylab="Score Values",xlab="Sample",main=colnames(out_probes)[i])
     abline(h=cutoff[i],lty=2)
   } 

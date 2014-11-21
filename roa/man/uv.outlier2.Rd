@@ -8,7 +8,7 @@ Two Group Univariate Outlier Analysis
 Outliers can have biological relevance when determined using gene expression, RNA-Seq, methylation, or other types of data. Three approaches have been previously developed: Cancer Profile Outlier Analysis (COPA), Outlier Sum Statistic (OSS), and  Gene Tissue Index (GTI). This function separately determines univariate outliers using the three previously mentioned outlier statistics in addition to a variance approach in a single group of samples. Results can be intersected to find genes identified in all four approaches or three of four approaches.
 }
 \usage{
-uv.outlier2(data_d, data_n, data_all, annotation = NULL, annID, annName, diff = T, cpmtype = "Mann-Whitney", save.path = NULL, cut = 0.85, num.id = T, common.genes = T, under = F, p = NULL)
+uv.outlier2(data_d, data_n, data_all, annotation = NULL, annID, annName, diff = TRUE, cpmtype = "Mann-Whitney", save.path = NULL, cut = 0.85, num.id = TRUE, common.genes = TRUE, under = FALSE, p = NULL)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{

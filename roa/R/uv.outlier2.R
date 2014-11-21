@@ -1,8 +1,8 @@
 ################################################################################
 ### Two Group Outlier Analysis ###
 ################################################################################
-uv.outlier2<-function(data_d,data_n,data_all, annotation=NULL,annID, annName, diff=T,cpmtype="Mann-Whitney",
-                       save.path=NULL, cut=0.85,num.id=T,common.genes=T,under=F,p=NULL){
+uv.outlier2<-function(data_d,data_n,data_all, annotation=NULL,annID, annName, diff=TRUE,cpmtype="Mann-Whitney",
+                       save.path=NULL, cut=0.85,num.id=TRUE,common.genes=TRUE,under=FALSE,p=NULL){
 
   #check for missing arguments
   if(missing(data_d) | missing(data_n) | missing(data_all)){
@@ -23,8 +23,8 @@ uv.outlier2<-function(data_d,data_n,data_all, annotation=NULL,annID, annName, di
   }  
   
   #check if cut-off matches under status
-  if(under==T & cut>0.5){warning("cut value doesn't match under status")}
-  if(under==F & cut<0.5){warning("cut value doesn't match under status")}
+  if(under==TRUE & cut>0.5){warning("cut value doesn't match under status")}
+  if(under==FALSE & cut<0.5){warning("cut value doesn't match under status")}
   
   #both cpmtype and p cannot be null
   if(!is.null(cpmtype)){p=NULL}
@@ -62,18 +62,18 @@ apply_pb <- function(X, MARGIN, FUN, ...,Title="Calculating ...")
   num2 = dim(data_d)[1]
 
 #GTI - a statistic is calculated for each group (1=normal; 2=disease)
-gti1 = function(data) (sum(as.numeric(data)>as.numeric((quantile(data,0.75,na.rm=T)-quantile(data,0.25,na.rm=T))+quantile(data,0.75,na.rm=T)))/num1)*(mean(subset(data,data>((quantile(data,0.75,na.rm=T)-quantile(data,0.25,na.rm=T))+quantile(data,0.75,na.rm=T))))+((quantile(data,0.75,na.rm=T)-quantile(data,0.25,na.rm=T))+quantile(data,0.75,na.rm=T)))/mean(subset(data,data>((quantile(data,0.75,na.rm=T)-quantile(data,0.25,na.rm=T))+quantile(data,0.75,na.rm=T))))  
-gti2 = function(data) (sum(as.numeric(data)>as.numeric((quantile(data,0.75,na.rm=T)-quantile(data,0.25,na.rm=T))+quantile(data,0.75,na.rm=T)))/num2)*(mean(subset(data,data>((quantile(data,0.75,na.rm=T)-quantile(data,0.25,na.rm=T))+quantile(data,0.75,na.rm=T))))+((quantile(data,0.75,na.rm=T)-quantile(data,0.25,na.rm=T))+quantile(data,0.75,na.rm=T)))/mean(subset(data,data>((quantile(data,0.75,na.rm=T)-quantile(data,0.25,na.rm=T))+quantile(data,0.75,na.rm=T))))  
+gti1 = function(data) (sum(as.numeric(data)>as.numeric((quantile(data,0.75,na.rm=TRUE)-quantile(data,0.25,na.rm=TRUE))+quantile(data,0.75,na.rm=TRUE)))/num1)*(mean(subset(data,data>((quantile(data,0.75,na.rm=TRUE)-quantile(data,0.25,na.rm=TRUE))+quantile(data,0.75,na.rm=TRUE))))+((quantile(data,0.75,na.rm=TRUE)-quantile(data,0.25,na.rm=TRUE))+quantile(data,0.75,na.rm=TRUE)))/mean(subset(data,data>((quantile(data,0.75,na.rm=TRUE)-quantile(data,0.25,na.rm=TRUE))+quantile(data,0.75,na.rm=TRUE))))  
+gti2 = function(data) (sum(as.numeric(data)>as.numeric((quantile(data,0.75,na.rm=TRUE)-quantile(data,0.25,na.rm=TRUE))+quantile(data,0.75,na.rm=TRUE)))/num2)*(mean(subset(data,data>((quantile(data,0.75,na.rm=TRUE)-quantile(data,0.25,na.rm=TRUE))+quantile(data,0.75,na.rm=TRUE))))+((quantile(data,0.75,na.rm=TRUE)-quantile(data,0.25,na.rm=TRUE))+quantile(data,0.75,na.rm=TRUE)))/mean(subset(data,data>((quantile(data,0.75,na.rm=TRUE)-quantile(data,0.25,na.rm=TRUE))+quantile(data,0.75,na.rm=TRUE))))  
 
-gti_under1 = function(data) (sum(as.numeric(data)<as.numeric((quantile(data,0.25,na.rm=T)-quantile(data,0.75,na.rm=T))+quantile(data,0.25,na.rm=T)))/num1)*(mean(subset(data,data<((quantile(data,0.25,na.rm=T)-quantile(data,0.75,na.rm=T))+quantile(data,0.25,na.rm=T))))-((quantile(data,0.25,na.rm=T)-quantile(data,0.75,na.rm=T))+quantile(data,0.25,na.rm=T)))/mean(subset(data,data<((quantile(data,0.25,na.rm=T)-quantile(data,0.75,na.rm=T))+quantile(data,0.25,na.rm=T))))
-gti_under2 = function(data) (sum(as.numeric(data)<as.numeric((quantile(data,0.25,na.rm=T)-quantile(data,0.75,na.rm=T))+quantile(data,0.25,na.rm=T)))/num2)*(mean(subset(data,data<((quantile(data,0.25,na.rm=T)-quantile(data,0.75,na.rm=T))+quantile(data,0.25,na.rm=T))))-((quantile(data,0.25,na.rm=T)-quantile(data,0.75,na.rm=T))+quantile(data,0.25,na.rm=T)))/mean(subset(data,data<((quantile(data,0.25,na.rm=T)-quantile(data,0.75,na.rm=T))+quantile(data,0.25,na.rm=T))))
+gti_under1 = function(data) (sum(as.numeric(data)<as.numeric((quantile(data,0.25,na.rm=TRUE)-quantile(data,0.75,na.rm=TRUE))+quantile(data,0.25,na.rm=TRUE)))/num1)*(mean(subset(data,data<((quantile(data,0.25,na.rm=TRUE)-quantile(data,0.75,na.rm=TRUE))+quantile(data,0.25,na.rm=TRUE))))-((quantile(data,0.25,na.rm=TRUE)-quantile(data,0.75,na.rm=TRUE))+quantile(data,0.25,na.rm=TRUE)))/mean(subset(data,data<((quantile(data,0.25,na.rm=TRUE)-quantile(data,0.75,na.rm=TRUE))+quantile(data,0.25,na.rm=TRUE))))
+gti_under2 = function(data) (sum(as.numeric(data)<as.numeric((quantile(data,0.25,na.rm=TRUE)-quantile(data,0.75,na.rm=TRUE))+quantile(data,0.25,na.rm=TRUE)))/num2)*(mean(subset(data,data<((quantile(data,0.25,na.rm=TRUE)-quantile(data,0.75,na.rm=TRUE))+quantile(data,0.25,na.rm=TRUE))))-((quantile(data,0.25,na.rm=TRUE)-quantile(data,0.75,na.rm=TRUE))+quantile(data,0.25,na.rm=TRUE)))/mean(subset(data,data<((quantile(data,0.25,na.rm=TRUE)-quantile(data,0.75,na.rm=TRUE))+quantile(data,0.25,na.rm=TRUE))))
 
 gti<-function(data_d,data_n,data_all,Under=under){
-  if(Under==F){
+  if(Under==FALSE){
     data_norm <- apply_pb(data1,2,gti1,Title="Calculating GTI ...")
     data_dis<- apply_pb(data2,2,gti2,Title="Calculating GTI ...")
   }
-  if(Under==T){
+  if(Under==TRUE){
     data_norm <- apply_pb(data1,2,gti_under1,Title="Calculating GTI ...")
     data_dis<- apply_pb(data2,2,gti_under2,Title="Calculating GTI ...")
   }
@@ -86,15 +86,15 @@ return(dist)
 #take rth percentile of disease group
 copa<-function(data_d,data_n,data_all,Cut=0.85){
   #calculate quantile specified by cut for each gene
-    r<-function(data) (quantile(data,Cut,na.rm=T)) #quantile function
+    r<-function(data) (quantile(data,Cut,na.rm=TRUE)) #quantile function
     x<-data.matrix(data_d)
     x1<-apply_pb(x,2,r)
   #calculate median
-    #median1<- function(data) quantile(data,0.5,na.rm=T)
+    #median1<- function(data) quantile(data,0.5,na.rm=TRUE)
     data1<-data.matrix(data_all)
     med<-apply_pb(data1,2,median,Title="Calculating median ...")
   #calculate mad
-    #mad1<-function(data) mad(data,na.rm=T)
+    #mad1<-function(data) mad(data,na.rm=TRUE)
     mad1<-apply_pb(data1,2,mad,Title="Calculating median absolute deviations ...")
   #calculate copa
     copa<-(x1-med)/mad1
@@ -113,8 +113,8 @@ mad2<-apply_pb(data2,2,mad,Title="Calculating median absolute deviations ...")
 x2<-sweep(data_all,2,med,FUN="-")
 x3<-sweep(x2,2,mad2,FUN="/")
 #determine cutoff
-if(Under==F){cutoff<-function(data) quantile(data,0.75,na.rm=T)-quantile(data,0.25,na.rm=T)+quantile(data,0.75,na.rm=T)}
-if(Under==T){cutoff<-function(data) quantile(data,0.25,na.rm=T)-(quantile(data,0.75,na.rm=T)-quantile(data,0.25,na.rm=T))}
+if(Under==FALSE){cutoff<-function(data) quantile(data,0.75,na.rm=TRUE)-quantile(data,0.25,na.rm=TRUE)+quantile(data,0.75,na.rm=TRUE)}
+if(Under==TRUE){cutoff<-function(data) quantile(data,0.25,na.rm=TRUE)-(quantile(data,0.75,na.rm=TRUE)-quantile(data,0.25,na.rm=TRUE))}
 
 gene_cut<-apply_pb(data.matrix(x3),2,cutoff,Title="Calculating cut-offs ...")
 
@@ -125,8 +125,8 @@ y4<-data.matrix(y3)
 #calculate oss
 oss<-c(rep(0,dim(y4)[2]))
 for (i in 1:dim(y4)[2]){
-  if(Under==F){oss[i]<-sum(subset(y4[,i],y4[,i]>gene_cut[i]))}
-  if(Under==T){oss[i]<-sum(subset(y4[,i],y4[,i]<gene_cut[i]))}
+  if(Under==FALSE){oss[i]<-sum(subset(y4[,i],y4[,i]>gene_cut[i]))}
+  if(Under==TRUE){oss[i]<-sum(subset(y4[,i],y4[,i]<gene_cut[i]))}
 }
 names(oss)<-colnames(data_all)
 return(oss)
@@ -149,25 +149,25 @@ dat.oss<-oss(data1,data2,data3)
 
 ### GTI
 if(is.null(cpmtype) & !is.null(p)){
-  if(under==F){dat.gti3<-ifelse(dat.gti>quantile(dat.gti, p,na.rm=TRUE), dat.gti, NA)}
-  if(under==T){dat.gti3<-ifelse(dat.gti<quantile(dat.gti, p,na.rm=TRUE), dat.gti, NA)}
+  if(under==FALSE){dat.gti3<-ifelse(dat.gti>quantile(dat.gti, p,na.rm=TRUE), dat.gti, NA)}
+  if(under==TRUE){dat.gti3<-ifelse(dat.gti<quantile(dat.gti, p,na.rm=TRUE), dat.gti, NA)}
 }
 
 if(!is.null(cpmtype) & is.null(p)){
-  if(under==F){dat.gti.s<-sort(dat.gti,decreasing=T)}
-  if(under==T){dat.gti.s<-sort(dat.gti)}
+  if(under==FALSE){dat.gti.s<-sort(dat.gti,decreasing=TRUE)}
+  if(under==TRUE){dat.gti.s<-sort(dat.gti)}
 
   #determining change point on ordered raw data (highest to lowest)
-  if (diff==F){cpm_g<-detectChangePoint(dat.gti.s,cpmType=cpmtype, ARL0=500, startup=20)}
+  if (diff==FALSE){cpm_g<-detectChangePoint(dat.gti.s,cpmType=cpmtype, ARL0=500, startup=20)}
   
   #determine change point for difference
-  if (diff==T){
+  if (diff==TRUE){
     diffg<-c(rep(0,length(dat.gti)))
     for (i in 1:length(dat.gti)-1){
       diffg[i]<-dat.gti.s[i]-dat.gti.s[i+1]
     }
-    diffg1<-subset(diffg,is.nan(diffg)==F)
-    diffg2<-subset(diffg1,is.na(diffg1)==F)
+    diffg1<-subset(diffg,is.nan(diffg)==FALSE)
+    diffg2<-subset(diffg1,is.na(diffg1)==FALSE)
     diffg3<-subset(diffg2,diffg2!="Inf")
 
     cpm_g<-detectChangePoint(diffg3,cpmType=cpmtype, ARL0=500, startup=20)
@@ -178,7 +178,7 @@ if(!is.null(cpmtype) & is.null(p)){
 }
 dat.gti4<-dat.gti3[unique(names(dat.gti3))]
   
-  if(num.id==T){
+  if(num.id==TRUE){
     noX<-substr(names(dat.gti4), 2,15)
     noX1<-unique(noX)
     if(!is.null(annotation)){
@@ -189,7 +189,7 @@ dat.gti4<-dat.gti3[unique(names(dat.gti3))]
     else {gs<-noX1
           val<-as.vector(dat.gti4)}
   }
-  if(num.id==F){
+  if(num.id==FALSE){
     if(!is.null(annotation)){
       gs<-annotation[annotation[,annID] %in% names(dat.gti4),c(annID,annName)]
       val<-dat.gti4[names(dat.gti4) %in% gs[,1]]
@@ -203,25 +203,25 @@ dat.gti4<-dat.gti3[unique(names(dat.gti3))]
 
 ### COPA
 if(is.null(cpmtype) & !is.null(p)){
-  if(under==F){dat.copa3<-ifelse(dat.copa>quantile(dat.copa, p,na.rm=TRUE), dat.copa, NA)}
-  if(under==T){dat.copa3<-ifelse(dat.copa<quantile(dat.copa, p,na.rm=TRUE), dat.copa, NA)}
+  if(under==FALSE){dat.copa3<-ifelse(dat.copa>quantile(dat.copa, p,na.rm=TRUE), dat.copa, NA)}
+  if(under==TRUE){dat.copa3<-ifelse(dat.copa<quantile(dat.copa, p,na.rm=TRUE), dat.copa, NA)}
 }
 
 if(!is.null(cpmtype) & is.null(p)){
-  if(under==F){dat.copa.s<-sort(dat.copa,decreasing=T)}
-  if(under==T){dat.copa.s<-sort(dat.copa)}
+  if(under==FALSE){dat.copa.s<-sort(dat.copa,decreasing=TRUE)}
+  if(under==TRUE){dat.copa.s<-sort(dat.copa)}
 
   #determining change point on ordered raw data (highest to lowest)
-  if (diff==F){cpm_c<-detectChangePoint(dat.copa.s,cpmType=cpmtype, ARL0=500, startup=20)}
+  if (diff==FALSE){cpm_c<-detectChangePoint(dat.copa.s,cpmType=cpmtype, ARL0=500, startup=20)}
 
   #determine change point for difference
-  if (diff==T){
+  if (diff==TRUE){
     diffc<-c(rep(0,length(dat.copa)))
   for (i in 1:length(dat.copa)-1){
     diffc[i]<-dat.copa.s[i]-dat.copa.s[i+1]
   }
-  diffc1<-subset(diffc,is.nan(diffc)==F)
-  diffc2<-subset(diffc1,is.na(diffc1)==F)
+  diffc1<-subset(diffc,is.nan(diffc)==FALSE)
+  diffc2<-subset(diffc1,is.na(diffc1)==FALSE)
   diffc3<-subset(diffc2,diffc2!="Inf")
   
   cpm_c<-detectChangePoint(diffc3,cpmType=cpmtype, ARL0=500, startup=20)
@@ -232,7 +232,7 @@ if(!is.null(cpmtype) & is.null(p)){
 }
 dat.copa4<-dat.copa3[unique(names(dat.copa3))]
 
-if(num.id==T){
+if(num.id==TRUE){
   noX<-substr(names(dat.copa4), 2,15)
   noX1<-unique(noX)
   if(!is.null(annotation)){
@@ -243,7 +243,7 @@ if(num.id==T){
   else {gs<-noX1
         val<-as.vector(dat.copa4)}
 }
-if(num.id==F){
+if(num.id==FALSE){
   if(!is.null(annotation)){
     gs<-annotation[annotation[,annID] %in% names(dat.copa4),c(annID,annName)]
     val<-dat.copa4[names(dat.copa4) %in% gs[,1]]
@@ -258,25 +258,25 @@ write.csv(copa_out,file=paste(save.path,"copa_outlier2.csv"))
 
 ### OSS
 if(is.null(cpmtype) & !is.null(p)){
-  if(under==F){dat.oss3<-ifelse(dat.oss>quantile(dat.oss, p,na.rm=TRUE), dat.oss, NA)}
-  if(under==T){dat.oss3<-ifelse(dat.oss<quantile(dat.oss, p,na.rm=TRUE), dat.oss, NA)}
+  if(under==FALSE){dat.oss3<-ifelse(dat.oss>quantile(dat.oss, p,na.rm=TRUE), dat.oss, NA)}
+  if(under==TRUE){dat.oss3<-ifelse(dat.oss<quantile(dat.oss, p,na.rm=TRUE), dat.oss, NA)}
 }
 
 if(!is.null(cpmtype) & is.null(p)){
-  if(under==F){dat.oss.s<-sort(dat.oss,decreasing=T)}
-  if(under==T){dat.oss.s<-sort(dat.oss)}
+  if(under==FALSE){dat.oss.s<-sort(dat.oss,decreasing=TRUE)}
+  if(under==TRUE){dat.oss.s<-sort(dat.oss)}
 
   #determining change point on ordered raw data (highest to lowest)
-  if (diff==F){cpm_o<-detectChangePoint(dat.oss.s,cpmType=cpmtype, ARL0=500, startup=20)}
+  if (diff==FALSE){cpm_o<-detectChangePoint(dat.oss.s,cpmType=cpmtype, ARL0=500, startup=20)}
 
   #determine change point for difference
-  if (diff==T){
+  if (diff==TRUE){
   diffo<-c(rep(0,length(dat.oss)))
   for (i in 1:length(dat.oss)-1){
     diffo[i]<-dat.oss.s[i]-dat.oss.s[i+1]
   }
-  diffo1<-subset(diffo,is.nan(diffo)==F)
-  diffo2<-subset(diffo1,is.na(diffo1)==F)
+  diffo1<-subset(diffo,is.nan(diffo)==FALSE)
+  diffo2<-subset(diffo1,is.na(diffo1)==FALSE)
   diffo3<-subset(diffo2,diffo2!="Inf")
   
   cpm_o<-detectChangePoint(diffo3,cpmType=cpmtype, ARL0=500, startup=20)
@@ -287,7 +287,7 @@ if(!is.null(cpmtype) & is.null(p)){
 }
 dat.oss4<-dat.oss3[unique(names(dat.oss3))]
 
-if(num.id==T){
+if(num.id==TRUE){
   noX<-substr(names(dat.oss4), 2,15)
   noX1<-unique(noX)
   if(!is.null(annotation)){
@@ -298,7 +298,7 @@ if(num.id==T){
   else {gs<-noX1
         val<-as.vector(dat.oss4)}
 }
-if(num.id==F){
+if(num.id==FALSE){
   if(!is.null(annotation)){
     gs<-annotation[annotation[,annID] %in% names(dat.oss4),c(annID,annName)]
     val<-dat.oss4[names(dat.oss4) %in% gs[,1]]
@@ -309,9 +309,9 @@ if(num.id==F){
 oss_out<-data.frame(gs, Value=val,Stat="OSS")
 rownames(oss_out)<-NULL
 write.csv(oss_out,file=paste(save.path,"oss_outlier2.csv"))
-#if (outsample==T){
-#  if(under==F){outlying.samples(data_all,names(dat.oss4),over_cut=cut,stat="OSS",savepath=save.path)}
-#  if(under==T){outlying.samples(data_all,names(dat.oss4),under_cut=cut,stat="OSS",savepath=save.path)}
+#if (outsample==TRUE){
+#  if(under==FALSE){outlying.samples(data_all,names(dat.oss4),over_cut=cut,stat="OSS",savepath=save.path)}
+#  if(under==TRUE){outlying.samples(data_all,names(dat.oss4),under_cut=cut,stat="OSS",savepath=save.path)}
 #}
 ##############
 ### Output ###
@@ -376,7 +376,7 @@ par(mfrow=c(1,1))
 #######################
 ### Genes in common ###
 #######################
-if(common.genes==T){
+if(common.genes==TRUE){
   g<-names(dat.gti4)
   c<-names(dat.copa4)
   o<-names(dat.oss4)
@@ -385,11 +385,11 @@ if(common.genes==T){
 
   if (length(common3)==0){
     warning("No outliers in common across all three methods")
-    common.genes=F
+    common.genes=FALSE
   }
   if (length(common3)>0){
     #Four methods
-    if(num.id==T){common_genes<-substr(common3, 2,15)}
+    if(num.id==TRUE){common_genes<-substr(common3, 2,15)}
     else {common_genes<-common3}
     if(!is.null(annotation)){
       out3<-data.frame(annotation[annotation[,annID] %in% common_genes,],Methods=3)
@@ -405,8 +405,8 @@ if(common.genes==T){
 ##############
 ### Output ###
 ##############
-if(common.genes==F){return(list(Outliers=all_results))}
-if(common.genes==T){return(list(Outliers=all_results,Common_Genes=common.results))} 
+if(common.genes==FALSE){return(list(Outliers=all_results))}
+if(common.genes==TRUE){return(list(Outliers=all_results,Common_Genes=common.results))} 
 }
 
  

@@ -2,7 +2,7 @@
 ### Multivariate Outlier statistic ###
 ######################################
 mv.outlier<-function(data,annotation=NULL,annID,annName,save.path=NULL,cut=0.85,
-                     cpmtype="Mann-Whitney",num.id=T, under=F, diff=T, p=NULL){
+                     cpmtype="Mann-Whitney",num.id=TRUE, under=FALSE, diff=TRUE, p=NULL){
 
   #check for missing arguments
   if(missing(data)){
@@ -22,8 +22,8 @@ mv.outlier<-function(data,annotation=NULL,annID,annName,save.path=NULL,cut=0.85,
     stop("Invalid annotation column specification")
   }  
   #check if cut-off matches under status
-  #if(under==T & cut>0.5){warning("cut value doesn't match under status")}
-  #if(under==F & cut<0.5){warning("cut value doesn't match under status")}
+  #if(under==TRUE & cut>0.5){warning("cut value doesn't match under status")}
+  #if(under==FALSE & cut<0.5){warning("cut value doesn't match under status")}
   
   #both cpmtype and p cannot be null
   if(!is.null(cpmtype)){p=NULL}
@@ -57,26 +57,26 @@ mv.outlier<-function(data,annotation=NULL,annID,annName,save.path=NULL,cut=0.85,
 #####################
 num = dim(data)[1]
 ##GTI
-gti = function(data) (sum(as.numeric(data)>as.numeric((quantile(data,0.75,na.rm=T)-quantile(data,0.25,na.rm=T))+quantile(data,0.75,na.rm=T)))/num)*(mean(subset(data,data>((quantile(data,0.75,na.rm=T)-quantile(data,0.25,na.rm=T))+quantile(data,0.75,na.rm=T))))+((quantile(data,0.75,na.rm=T)-quantile(data,0.25,na.rm=T))+quantile(data,0.75,na.rm=T)))/mean(subset(data,data>((quantile(data,0.75,na.rm=T)-quantile(data,0.25,na.rm=T))+quantile(data,0.75,na.rm=T))))
-gti_under = function(data) (sum(as.numeric(data)<as.numeric((quantile(data,0.25,na.rm=T)-quantile(data,0.75,na.rm=T))+quantile(data,0.25,na.rm=T)))/num)*(mean(subset(data,data<((quantile(data,0.25,na.rm=T)-quantile(data,0.75,na.rm=T))+quantile(data,0.25,na.rm=T))))-((quantile(data,0.25,na.rm=T)-quantile(data,0.75,na.rm=T))+quantile(data,0.25,na.rm=T)))/mean(subset(data,data<((quantile(data,0.25,na.rm=T)-quantile(data,0.75,na.rm=T))+quantile(data,0.25,na.rm=T))))
+gti = function(data) (sum(as.numeric(data)>as.numeric((quantile(data,0.75,na.rm=TRUE)-quantile(data,0.25,na.rm=TRUE))+quantile(data,0.75,na.rm=TRUE)))/num)*(mean(subset(data,data>((quantile(data,0.75,na.rm=TRUE)-quantile(data,0.25,na.rm=TRUE))+quantile(data,0.75,na.rm=TRUE))))+((quantile(data,0.75,na.rm=TRUE)-quantile(data,0.25,na.rm=TRUE))+quantile(data,0.75,na.rm=TRUE)))/mean(subset(data,data>((quantile(data,0.75,na.rm=TRUE)-quantile(data,0.25,na.rm=TRUE))+quantile(data,0.75,na.rm=TRUE))))
+gti_under = function(data) (sum(as.numeric(data)<as.numeric((quantile(data,0.25,na.rm=TRUE)-quantile(data,0.75,na.rm=TRUE))+quantile(data,0.25,na.rm=TRUE)))/num)*(mean(subset(data,data<((quantile(data,0.25,na.rm=TRUE)-quantile(data,0.75,na.rm=TRUE))+quantile(data,0.25,na.rm=TRUE))))-((quantile(data,0.25,na.rm=TRUE)-quantile(data,0.75,na.rm=TRUE))+quantile(data,0.25,na.rm=TRUE)))/mean(subset(data,data<((quantile(data,0.25,na.rm=TRUE)-quantile(data,0.75,na.rm=TRUE))+quantile(data,0.25,na.rm=TRUE))))
   
 ##COPA
-copa = function(data) (quantile(data,cut,na.rm=T)-median(data))/mad(data)
+copa = function(data) (quantile(data,cut,na.rm=TRUE)-median(data))/mad(data)
 ##OSS
-oss_new = function(data) sum(subset(data,data>((quantile(data,0.75,na.rm=T)-quantile(data,0.25,na.rm=T))+quantile(data,0.75,na.rm=T)))-median(data))/mad(data)
-oss_under = function(data) sum(subset(data,data<(quantile(data,0.25,na.rm=T)-(quantile(data,0.75,na.rm=T)-quantile(data,0.25,na.rm=T))))-median(data))/mad(data)
+oss_new = function(data) sum(subset(data,data>((quantile(data,0.75,na.rm=TRUE)-quantile(data,0.25,na.rm=TRUE))+quantile(data,0.75,na.rm=TRUE)))-median(data))/mad(data)
+oss_under = function(data) sum(subset(data,data<(quantile(data,0.25,na.rm=TRUE)-(quantile(data,0.75,na.rm=TRUE)-quantile(data,0.25,na.rm=TRUE))))-median(data))/mad(data)
   
 #Convert data frame into a matrix
 data1<-data.matrix(data)
 
 #apply outlier stats
-if(under==F){data2 <- apply_pb(data1,2,gti, Title="Calculating GTI ...")}
-if(under==T){data2 <- apply_pb(data1,2,gti_under, Title="Calculating GTI ...")}
+if(under==FALSE){data2 <- apply_pb(data1,2,gti, Title="Calculating GTI ...")}
+if(under==TRUE){data2 <- apply_pb(data1,2,gti_under, Title="Calculating GTI ...")}
   
 data2c <- apply_pb(data1,2,copa, Title="Calculating COPA ...")
   
-if(under==F){data2o <- apply_pb(data1,2,oss_new, Title="Calculating OSS ...")}
-if(under==T){data2o <- apply_pb(data1,2,oss_under, Title="Calculating OSS ...")}
+if(under==FALSE){data2o <- apply_pb(data1,2,oss_new, Title="Calculating OSS ...")}
+if(under==TRUE){data2o <- apply_pb(data1,2,oss_under, Title="Calculating OSS ...")}
 
 #calculate score statistic
 score<-c(rep(0,length(data2)))
@@ -94,16 +94,16 @@ names(score1)<-names(data2)
 ############################
 #determining outliers from cpm
 if(!is.null(cpmtype) & is.null(p)){
-  score1.s<-sort(score1,decreasing=T)
+  score1.s<-sort(score1,decreasing=TRUE)
   
-  if (diff==F){cpm_s<-detectChangePoint(score1.s,cpmType=cpmtype, ARL0=500, startup=20)}
-  if (diff==T){
+  if (diff==FALSE){cpm_s<-detectChangePoint(score1.s,cpmType=cpmtype, ARL0=500, startup=20)}
+  if (diff==TRUE){
     diffs<-c(rep(0,length(score1.s)))
     for (i in 1:length(score1.s)-1){
       diffs[i]<-score1.s[i]-score1.s[i+1]
     }
-    diffs1<-subset(diffs,is.nan(diffs)==F)
-    diffs2<-subset(diffs1,is.na(diffs1)==F)
+    diffs1<-subset(diffs,is.nan(diffs)==FALSE)
+    diffs2<-subset(diffs1,is.na(diffs1)==FALSE)
     diffs3<-subset(diffs2,diffs2!="Inf")
     
   cpm_s<-detectChangePoint(diffs3,cpmType=cpmtype, ARL0=500, startup=20)
@@ -121,14 +121,14 @@ if(is.null(cpmtype) & !is.null(p)){
 ### Output ###
 ##############
   
-if(num.id==T){
+if(num.id==TRUE){
 id<-substr(names(outliers),2,15)
 if(is.null(annotation)){
   gene.symbol<-id
 }
   else{gene.symbol<-annotation[annotation[,annID]%in% substr(names(outliers),2,15),annName]}
 }
-if(num.id==F){
+if(num.id==FALSE){
 id<-names(outliers)
 if(is.null(annotation)){
   gene.symbol<-id
